@@ -1,0 +1,11 @@
+{
+  "routes": {
+    "/Midnight": {},
+    "/Midnight/dashboard": {},
+    "/Midnight/financeiro": {},
+    "/Midnight/login": {},
+    "/Midnight/membros": {},
+    "/Midnight/perfil": {},
+    "/Midnight/projetos": {}
+  }
+}
