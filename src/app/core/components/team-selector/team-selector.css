@@ -1,0 +1,75 @@
+.team-selector-container {
+    position: relative;
+}
+.active-team-btn {
+    display: flex;
+    align-items: center;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.active-team-btn:hover {
+    background-color: #333;
+}
+.team-logo {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+.team-name {
+    color: #e0e0e0;
+    font-weight: bold;
+    font-size: 16px;
+}
+.dropdown-icon {
+    margin-left: 15px;
+    color: #a5a5a5;
+    transition: transform 0.3s ease;
+}
+.dropdown-icon.rotated {
+    transform: rotate(180deg);
+}
+
+/* Dropdown */
+.team-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    background-color: #1e1e1e;
+    border: 1px solid #444;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    width: 250px;
+    z-index: 1100;
+}
+.dropdown-header {
+    padding: 10px 15px;
+    font-size: 12px;
+    color: #a5a5a5;
+    text-transform: uppercase;
+    border-bottom: 1px solid #444;
+}
+.team-dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 5px 0;
+}
+.team-dropdown li {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: #e0e0e0;
+}
+.team-dropdown li:hover {
+    background-color: #a52a2a;
+}
+.active-check {
+    margin-left: auto;
+    color: #2a8a4d;
+}

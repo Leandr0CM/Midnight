@@ -1,0 +1,20 @@
+<header class="main-header">
+    <div class="header-content">
+        <div class="logo-container">
+        <app-team-selector></app-team-selector>
+    </div>
+        <nav class="main-nav">
+            <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a routerLink="/projetos" routerLinkActive="active" class="nav-link"><i class="fas fa-robot"></i> Projetos</a>
+            <a routerLink="/financeiro" routerLinkActive="active" class="nav-link"><i class="fas fa-dollar-sign"></i> Financeiro</a>
+            <a routerLink="/membros" routerLinkActive="active" class="nav-link"><i class="fas fa-users"></i> Membros</a>
+        </nav>
+        <div class="user-profile">
+            <a routerLink="/perfil" class="profile-link">
+                <span>Bem-vindo, Capivara!</span>
+                <i class="fas fa-user-circle"></i>
+            </a>
+            <a href="login.html" class="logout-link"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </div>
+</header>

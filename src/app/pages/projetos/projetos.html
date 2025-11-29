@@ -1,0 +1,373 @@
+<main class="dashboard-container">
+    <div class="dashboard-header project-page-header">
+        <h2>Gerenciamento de Projetos</h2>
+        <button *ngIf="permissionService.canCreateProjects()" class="action-btn" (click)="openCreateProjectModal()"><i class="fas fa-plus"></i> Criar Novo Projeto</button>
+    </div>
+
+    <div class="projects-grid">
+        <div class="dashboard-card project-card" *ngFor="let project of projetos" [class.completed]="project.isCompleted">
+            <div class="project-card-header">
+                <div class="header-title-status">
+                    <h3>{{ project.nome }}</h3>
+                    <span class="status" [ngClass]="project.statusClass">{{ project.status }}</span>
+                </div>
+                <div class="project-header-actions">
+                    <button *ngIf="permissionService.canEditProject(project)" class="btn-icon btn-status-change" title="Alterar Status do Projeto" (click)="openChangeStatusModal(project)">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button *ngIf="permissionService.canEditProject(project)" class="btn-icon btn-edit" title="Editar Projeto" (click)="openEditProjectModal(project)">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <button *ngIf="permissionService.canCreateProjects() && project.nome !== 'Manutenção Geral'" class="btn-icon btn-delete" title="Excluir Projeto" (click)="openConfirmDeleteModal(project, 'project')">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="project-category"><i class="fas" [ngClass]="project.categoryIcon"></i> {{ project.category }}</div>
+            <p class="project-description card-body-content">{{ project.description }}</p>
+            <div class="project-progress">
+                <span>Progresso Geral</span>
+                <div class="progress-bar">
+                    <div class="progress" [class.bg-completed]="calculateTaskProgress(project) === 100" [style.width.%]="calculateTaskProgress(project)">
+                         {{ calculateTaskProgress(project) === 100 ? 'Concluído' : (calculateTaskProgress(project) | number:'1.0-0') + '%' }}
+                    </div>
+                </div>
+            </div>
+            <div class="project-parts">
+                <div class="parts-header">
+                    <h4><i class="fas fa-cogs"></i> Peças Alocadas</h4>
+                    <button *ngIf="permissionService.canEditProject(project)" class="btn-icon btn-add" title="Adicionar Peça" (click)="openAllocatePartModal(project)"><i class="fas fa-plus-circle"></i></button>
+                </div>
+                <ul class="parts-list">
+                    <li class="part-item" *ngFor="let part of project.parts">
+                        <span>{{ part.name }} ({{part.quantity}}x)</span>
+                        <div class="part-details">
+                            <span class="part-owner" [ngClass]="part.ownerClass">{{ part.owner }}</span>
+                            <button *ngIf="permissionService.canEditProject(project)" class="btn-icon btn-delete" title="Remover Peça" (click)="openConfirmDeleteModal(part, 'part', project)"><i class="fas fa-times-circle"></i></button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="project-members">
+                <span>Equipe:</span>
+                <div class="member-avatars">
+                    <span class="avatar" *ngFor="let member of project.members" [title]="member">
+                        {{ getInitials(member) }}
+                    </span>
+                </div>
+            </div>
+            <div class="project-card-footer">
+                <button *ngIf="!project.isCompleted" class="action-btn" (click)="openViewTasksModal(project)"><i class="fas fa-tasks"></i> Ver Tarefas</button>
+                <button *ngIf="project.isCompleted" class="action-btn btn-secondary" (click)="openViewHistoryModal(project)"><i class="fas fa-history"></i> Ver Histórico</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="modal-overlay active" *ngIf="isCreateProjectModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2><i class="fas fa-plus"></i> Criar Novo Projeto</h2>
+            <button type="button" class="close-btn" (click)="closeAllModals()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="createProjectForm" class="modal-form" (ngSubmit)="saveNewProject()">
+                <div class="input-group">
+                    <label>Nome do Robô</label>
+                    <input type="text" name="newProjectName" [(ngModel)]="newProjectData.nome" placeholder="Ex: Destruidor V3" required maxlength="20">
+                </div>
+                <div class="input-group">
+                    <label>Categoria</label>
+                    <input type="text" name="newProjectCategory" [(ngModel)]="newProjectData.category" placeholder="Ex: Featherweight (13,6kg)" required maxlength="24">
+                </div>
+                <div class="input-group">
+                    <label>Descrição / Objetivos</label>
+                    <div class="textarea-container">
+                        <textarea rows="3" name="newProjectDesc" [(ngModel)]="newProjectData.description" placeholder="Foco em arma de impacto vertical..." required maxlength="100"></textarea>
+                        <span class="char-counter">{{ newProjectData.description?.length || 0 }}/100</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+            <button type="submit" form="createProjectForm" class="action-btn">Salvar Projeto</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isViewTasksModalVisible" (click)="closeAllModals()">
+    <div class="modal modal-large active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Tarefas - {{ selectedProject?.nome }}</h2>
+            <button type="button" class="close-btn" (click)="closeAllModals()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="project-progress">
+                <span>Progresso das Tarefas</span>
+                <div class="progress-bar">
+                    <div class="progress" [style.width.%]="calculateTaskProgress(selectedProject!)">
+                        {{ calculateTaskProgress(selectedProject!) | number:'1.0-0' }}%
+                    </div>
+                </div>
+            </div>
+            <ul class="task-list">
+                <li class="task-item" *ngFor="let task of selectedProject?.tasks">
+                    <div class="task-info"><span class="task-title">{{ task.title }}</span><span class="task-assignee"><i class="fas fa-user"></i> {{ task.assignee }}</span></div>
+                    <div class="task-status-actions">
+                        <div class="task-status" [ngClass]="task.statusClass">{{ task.status }}</div>
+                        <div class="task-actions" *ngIf="selectedProject && permissionService.canEditProject(selectedProject)">
+                            <button class="btn-icon btn-edit" title="Editar Tarefa" (click)="openEditTaskModal(task)"><i class="fas fa-pencil-alt"></i></button>
+                            <button class="btn-icon btn-delete" title="Excluir Tarefa" (click)="openConfirmDeleteModal(task, 'task', selectedProject!)"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button *ngIf="selectedProject && permissionService.canEditProject(selectedProject)" class="action-btn full-width-btn" (click)="openAddTaskModal(selectedProject!)"><i class="fas fa-plus"></i> Adicionar Nova Tarefa</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isAddTaskModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Adicionar Nova Tarefa</h2>
+            <button type="button" class="close-btn" (click)="closeAllModals()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="addTaskForm" class="modal-form" (ngSubmit)="saveNewTask()">
+                <div class="input-group">
+                    <label>Título da Tarefa</label>
+                    <input type="text" name="newTaskTitle" [(ngModel)]="newTask.title" placeholder="Ex: Fiação da eletrônica" required maxlength="26">
+                </div>
+                <div class="input-group">
+                    <label>Atribuir ao Membro</label>
+                    <select name="newTaskAssignee" [(ngModel)]="newTask.assignee" required>
+                        <option [ngValue]="null" disabled>Selecione um membro...</option>
+                        <option *ngFor="let member of selectedProject?.members" [value]="member">{{member}}</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+            <button type="submit" form="addTaskForm" class="action-btn">Salvar Tarefa</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isEditTaskModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Editar Tarefa</h2>
+            <button type="button" class="close-btn" (click)="closeAllModals()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="editTaskForm" class="modal-form" (ngSubmit)="saveEditedTask()" *ngIf="editingTask">
+                <div class="input-group">
+                    <label>Título da Tarefa</label>
+                    <input type="text" name="editTaskTitle" [(ngModel)]="editingTask.title" required maxlength="26">
+                </div>
+                <div class="input-group">
+                    <label>Atribuir ao Membro</label>
+                    <select name="editTaskAssignee" [(ngModel)]="editingTask.assignee" required>
+                        <option *ngFor="let member of selectedProject?.members" [value]="member">{{ member }}</option>
+                    </select>
+                </div>
+                 <div class="input-group">
+                    <label>Status</label>
+                    <select name="editTaskStatus" [(ngModel)]="editingTask.status" required>
+                        <option value="Pendente">Pendente</option>
+                        <option value="Em Andamento">Em Andamento</option>
+                        <option value="Concluído">Concluído</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+            <button type="submit" form="editTaskForm" class="action-btn">Salvar Alterações</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isChangeStatusModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Alterar Status do Projeto</h2>
+            <button type="button" class="close-btn" (click)="closeAllModals()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="changeStatusForm" class="modal-form" (ngSubmit)="saveProjectStatus()" *ngIf="editingProject">
+                <div class="input-group">
+                    <label>Novo Status para "{{ editingProject.nome }}"</label>
+                    <select name="changeStatusSelect" [(ngModel)]="editingProject.status">
+                        <option value="Pendente">Pendente</option>
+                        <option value="Em Andamento">Em Andamento</option>
+                        <option value="Concluído">Concluído</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+             <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+             <button type="submit" form="changeStatusForm" class="action-btn">Salvar Novo Status</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isViewHistoryModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Histórico - {{ selectedProject?.nome }}</h2>
+            <button type="button" class="close-btn" (click)="closeAllModals()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <ul class="history-list">
+                <li class="history-item"><span class="history-date">01/08/2025</span><span class="history-user">Membro 1</span><span class="history-action"> concluiu a tarefa "Limpeza dos motores".</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isEditProjectModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Editar Projeto</h2>
+            <button type="button" class="close-btn" (click)="closeAllModals()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="editProjectForm" class="modal-form" (ngSubmit)="saveEditedProject()" *ngIf="editingProject">
+                <div class="input-group">
+                    <label>Nome do Robô</label>
+                    <input type="text" name="editProjectName" [(ngModel)]="editingProject.nome" required maxlength="20">
+                </div>
+                <div class="input-group">
+                    <label>Categoria</label>
+                    <input type="text" name="editProjectCategory" [(ngModel)]="editingProject.category" required maxlength="24">
+                </div>
+                <div class="input-group">
+                    <label>Descrição / Objetivos</label>
+                    <div class="textarea-container">
+                        <textarea rows="3" name="editProjectDesc" [(ngModel)]="editingProject.description" maxlength="100"></textarea>
+                        <span class="char-counter">{{ editingProject.description.length || 0 }}/100</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Equipe do Projeto</label>
+                    <div class="assigned-members-list"><span class="member-tag" *ngFor="let member of editingProject.members">{{ member }} <button type="button" class="remove-member-btn">&times;</button></span></div>
+                    <div class="add-member-container"><select class="member-select"><option disabled selected>Adicionar membro à equipe...</option></select><button type="button" class="action-btn btn-secondary add-member-btn">Adicionar</button></div>
+                </div>
+            </form>
+        </div>
+         <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+            <button type="submit" form="editProjectForm" class="action-btn">Salvar Alterações</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isAllocatePartModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Alocar Peça ao Projeto</h2>
+            <button type="button" class="close-btn" (click)="closeAllModals()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="allocatePartForm" class="modal-form" (ngSubmit)="saveNewPart()">
+                <div *ngIf="formError" class="form-error-message">
+                    {{ formError }}
+                </div>
+
+                <div class="input-group">
+                    <label>Origem da Peça</label>
+                    <div class="radio-group">
+                        <input type="radio" id="source-team" name="part-source" value="team" [(ngModel)]="partAllocationSource">
+                        <label for="source-team">Inventário da Equipe</label>
+                        <input type="radio" id="source-personal" name="part-source" value="personal" [(ngModel)]="partAllocationSource">
+                        <label for="source-personal">Peça Própria</label>
+                    </div>
+                </div>
+
+                <div *ngIf="partAllocationSource === 'team'">
+                    <div class="input-group">
+                        <label>Buscar Peça no Inventário</label>
+                        <div class="search-dropdown-container">
+                            <div class="search-input-wrapper">
+                                <input type="text" name="partSearch" placeholder="Digite para buscar..." 
+                                       [(ngModel)]="partSearchTerm" (input)="filterInventory()">
+                                <button type="button" class="dropdown-arrow" (click)="togglePartList($event)">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <ul class="search-results" *ngIf="isPartListOpen">
+                                <li *ngFor="let item of filteredInventory" (click)="selectTeamPart(item)">
+                                    <span>{{ item.name }}</span>
+                                    <span class="inventory-count">Disponível: {{ item.availableQuantity }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="selected-part-info" *ngIf="newPartData.inventoryItemId && getSelectedInventoryItem() as selectedItem">
+                        <span class="part-name">{{ selectedItem.name }}</span>
+                        <span class="part-quantity">Disponível: <strong>{{ selectedItem.availableQuantity }}</strong></span>
+                    </div>
+                </div>
+
+                <div *ngIf="partAllocationSource === 'personal'">
+                    <div class="input-group">
+                        <label>Nome da Peça</label>
+                        <input type="text" name="newPartNamePersonal" [(ngModel)]="newPartData.name" placeholder="Ex: Roda de Combate V2" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Quantidade a Alocar</label>
+                    <input type="number" name="newPartQuantity" [(ngModel)]="newPartData.quantity" 
+                           placeholder="0" min="1" step="1" 
+                           [max]="partAllocationSource === 'team' ? (getSelectedInventoryItem()?.availableQuantity ?? 999) : 999">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+            <button type="submit" form="allocatePartForm" class="action-btn">Alocar Peça</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isConfirmDeleteModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Confirmar Exclusão</h2>
+            <button type="button" class="close-btn" (click)="closeAllModals()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Você tem certeza de que deseja excluir este item? Esta ação não pode ser desfeita.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+            <button type="button" class="action-btn btn-danger" (click)="handleDeleteConfirmation()">Excluir</button>
+        </div>
+    </div>
+</div>

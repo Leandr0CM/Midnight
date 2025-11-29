@@ -1,0 +1,324 @@
+<main class="dashboard-container">
+    
+    <div class="dashboard-header members-page-header">
+        <h2>Gerenciamento de Membros e Funções</h2>
+        <button *ngIf="permissionService.hasPermission(Permissions.MANAGE_MEMBERS)" class="action-btn" (click)="addMember()"><i class="fas fa-user-plus"></i> Adicionar Novo Membro</button>
+    </div>
+
+    <div class="members-grid">
+
+        <div class="dashboard-card card-members-table">
+            <h3><i class="fas fa-users-cog"></i> Membros da Equipe</h3>
+            <div class="card-body-content">
+                <div class="table-container">
+                    <table class="members-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Cargo</th>
+                                <th>Função no Sistema</th>
+                                <th>E-mail</th>
+                                <th *ngIf="permissionService.hasPermission(Permissions.MANAGE_MEMBERS)">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let member of members">
+                                <td>
+                                    <div class="user-info">
+                                        <span class="avatar">{{ member.avatar }}</span>
+                                        <span>{{ member.name }}</span>
+                                    </div>
+                                </td>
+                                <td><span class="tag" [ngClass]="member.positionClass">{{ member.position }}</span></td>
+                                <td>
+                                    <span *ngIf="getRoleById(member.roleId) as role" 
+                                          class="tag role-tag" 
+                                          [style.backgroundColor]="role.color">
+                                        {{ role.name }}
+                                    </span>
+                                </td>
+                                <td class="contact-cell" [title]="member.contact">{{ member.contact }}</td>
+                                <td *ngIf="permissionService.hasPermission(Permissions.MANAGE_MEMBERS)">
+                                    <div class="action-buttons">
+                                        <button class="btn-icon btn-edit" title="Editar" (click)="editMember(member)"><i class="fas fa-pencil-alt"></i></button>
+                                        <button class="btn-icon btn-delete" title="Remover" (click)="removeMember(member)"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h3><i class="fas fa-key"></i> Funções e Permissões</h3>
+            <ul class="roles-list card-body-content">
+                <li class="role-item" *ngFor="let role of roles">
+                    <span class="role-name">
+                        <i class="fas fa-circle" [style.color]="role.color"></i>
+                        {{ role.name }}
+                    </span>
+                    <div *ngIf="permissionService.hasPermission(Permissions.MANAGE_ROLES)" class="role-actions">
+                        <button class="action-btn btn-secondary" (click)="openEditRoleModal(role)"><i class="fas fa-shield-alt"></i> Editar Permissões</button>
+                        <button class="btn-icon btn-delete" title="Excluir Função" (click)="openConfirmDeleteRoleModal(role)">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+            <button *ngIf="permissionService.hasPermission(Permissions.MANAGE_ROLES)" class="action-btn full-width-btn" (click)="createNewRole()" style="margin-top: 20px;"><i class="fas fa-plus"></i> Criar Nova Função</button>
+        </div>
+
+    </div>
+
+</main>
+
+<div class="modal-overlay active" *ngIf="isAddMemberModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+            <h2><i class="fas fa-user-plus"></i> Adicionar Novo Membro</h2>
+            <button type="button" class="close-btn" (click)="closeAllModals()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <form id="addMemberForm" class="modal-form" (ngSubmit)="saveMember()">
+                <div class="input-group">
+                    <label>Nome Completo</label>
+                    <input type="text" [(ngModel)]="memberFormData.name" name="memberName" required maxlength="20">
+                </div>
+                <div class="input-group">
+                    <label>Cargo</label>
+                    <div class="radio-group">
+                        <input id="posMembro" type="radio" value="Membro" [(ngModel)]="memberFormData.position" name="memberPosition">
+                        <label for="posMembro">Membro</label>
+                        <input id="posEstagiario" type="radio" value="Trainee" [(ngModel)]="memberFormData.position" name="memberPosition">
+                        <label for="posEstagiario">Trainee</label>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Função no Sistema</label>
+                    <select name="memberRole" [(ngModel)]="memberFormData.roleId" required>
+                        <option [ngValue]="null" disabled>Selecione uma função...</option>
+                        <option *ngFor="let role of assignableRoles" [value]="role.id">{{ role.name }}</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Email de Contato</label>
+                    <input type="text" [(ngModel)]="memberFormData.contact" name="memberContact" required maxlength="28">
+                </div>
+            </form>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+            <button type="submit" form="addMemberForm" class="action-btn">Salvar Membro</button>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isCreateRoleModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2><i class="fas fa-plus-circle"></i> Criar Nova Função</h2>
+            <button type="button" class="close-btn" (click)="closeAllModals()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="createRoleForm" class="modal-form" (ngSubmit)="saveRole()">
+                <div class="input-group">
+                    <label for="roleName">NOME DA FUNÇÃO</label>
+                    <input id="roleName" type="text" [(ngModel)]="roleFormData.name" name="roleName" placeholder="Digite o nome da função" required maxlength="20">
+                </div>
+                <div class="input-group">
+                    <label for="roleColor">COR DA FUNÇÃO</label>
+                    <div class="color-picker-wrapper">
+                        <input id="roleColor" type="color" [(ngModel)]="roleFormData.color" name="roleColor">
+                        <span class="color-hex">{{ roleFormData.color }}</span>
+                    </div>
+                </div>
+
+                <div class="unique-role-section">
+                    <div class="permission-item">
+                        <span>Função Única (apenas um membro pode ter)</span>
+                        <label class="switch">
+                            <input type="checkbox" [(ngModel)]="roleFormData.isUnique" name="roleIsUnique">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="permissions-section">
+                    <label>PERMISSÕES DA FUNÇÃO</label>
+                    <div *ngFor="let category of getObjectKeys(availablePermissions)">
+                        <h4 class="permission-category">{{ category }}</h4>
+                        <div class="permission-item" *ngFor="let permission of availablePermissions[category]">
+                            <span>{{ getPermissionName(permission) }}</span>
+                            <label class="switch">
+                                <input type="checkbox" [(ngModel)]="roleFormData.permissions[permission]" [name]="permission">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+            <button type="submit" form="createRoleForm" class="action-btn">Salvar Função</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isEditRoleModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+            <h2><i class="fas fa-shield-alt"></i> Editar Função e Permissões</h2>
+            <button type="button" class="close-btn" (click)="closeAllModals()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <form id="editRoleForm" class="modal-form" (ngSubmit)="saveRole()">
+                
+                <div class="input-group">
+                    <label for="editRoleName">NOME DA FUNÇÃO</label>
+                    <input id="editRoleName" type="text" [(ngModel)]="roleFormData.name" name="editRoleName" required maxlength="20">
+                </div>
+
+                <div class="input-group">
+                    <label for="editRoleColor">COR DA FUNÇÃO</label>
+                    <div class="color-picker-wrapper">
+                        <input id="editRoleColor" type="color" [(ngModel)]="roleFormData.color" name="editRoleColor">
+                        <span class="color-hex">{{ roleFormData.color }}</span>
+                    </div>
+                </div>
+
+                <div class="unique-role-section">
+                    <div class="permission-item">
+                        <span>Função Única (apenas um membro pode ter)</span>
+                        <label class="switch">
+                            <input type="checkbox" [(ngModel)]="roleFormData.isUnique" name="roleIsUnique">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="permissions-section">
+                    <label>PERMISSÕES DA FUNÇÃO</label>
+                    <div *ngFor="let category of getObjectKeys(availablePermissions)">
+                        <h4 class="permission-category">{{ category }}</h4>
+                        <div class="permission-item" *ngFor="let permission of availablePermissions[category]">
+                            <span>{{ getPermissionName(permission) }}</span>
+                            <label class="switch">
+                                <input type="checkbox" [(ngModel)]="roleFormData.permissions[permission]" [name]="permission">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+            <button type="submit" form="editRoleForm" class="action-btn">Salvar Alterações</button>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isConfirmDeleteRoleModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+            <h2><i class="fas fa-exclamation-triangle"></i> Confirmar Exclusão</h2>
+        </div>
+
+        <div class="modal-body">
+            <p>Você tem certeza que deseja excluir a função <strong>"{{ roleToDelete?.name }}"</strong>?</p>
+            <p class="warning-text">Esta ação não pode ser desfeita.</p>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+            <button type="button" class="action-btn btn-danger" (click)="handleDeleteRoleConfirmation()">Excluir Função</button>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isEditMemberModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+            <h2><i class="fas fa-user-edit"></i> Editar Membro</h2>
+            <button type="button" class="close-btn" (click)="closeAllModals()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <form id="editMemberForm" class="modal-form" (ngSubmit)="saveMember()">
+                <div class="input-group">
+                    <label>Nome Completo</label>
+                    <input type="text" [(ngModel)]="memberFormData.name" name="editMemberName" required maxlength="20">
+                </div>
+                <div class="input-group">
+                    <label>Cargo</label>
+                    <div class="radio-group">
+                        <input id="editPosMembro" type="radio" value="Membro" [(ngModel)]="memberFormData.position" name="editMemberPosition">
+                        <label for="editPosMembro">Membro</label>
+                        <input id="editPosEstagiario" type="radio" value="Trainee" [(ngModel)]="memberFormData.position" name="editMemberPosition">
+                        <label for="editPosEstagiario">Trainee</label>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Função no Sistema</label>
+                    <select name="editMemberRole" [(ngModel)]="memberFormData.roleId" required>
+                        <option [ngValue]="null" disabled>Selecione uma função...</option>
+                        <option *ngFor="let role of assignableRoles" [value]="role.id">{{ role.name }}</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Email de Contato</label>
+                    <input type="text" [(ngModel)]="memberFormData.contact" name="editMemberContact" required maxlength="28">
+                </div>
+            </form>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+            <button type="submit" form="editMemberForm" class="action-btn">Salvar Alterações</button>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isConfirmDeleteMemberModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+            <h2><i class="fas fa-exclamation-triangle"></i> Confirmar Exclusão</h2>
+        </div>
+
+        <div class="modal-body">
+            <p>Você tem certeza que deseja remover <strong>"{{ memberToDelete?.name }}"</strong> da equipe?</p>
+            <p class="warning-text">Esta ação não pode ser desfeita.</p>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+            <button type="button" class="action-btn btn-danger" (click)="handleDeleteMemberConfirmation()">Excluir Membro</button>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,106 @@
+<main class="dashboard-container">
+    <div class="dashboard-header">
+        <h2>Perfil de Usuário</h2>
+    </div>
+
+    <div class="profile-grid">
+        <div class="dashboard-card profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">{{ currentUser.avatar }}</div>
+                <div class="profile-info">
+                    <h1 class="profile-name">{{ currentUser.name }}</h1>
+                    <span class="profile-role" [style.backgroundColor]="currentUser.roleColor">{{ currentUser.role }}</span>
+                </div>
+            </div>
+
+            <div class="profile-details">
+                <div class="detail-item">
+                    <i class="fas fa-envelope"></i>
+                    <span><strong>E-mail:</strong> {{ currentUser.email }}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span><strong>Membro desde:</strong> {{ currentUser.since }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card settings-card">
+            <h3><i class="fas fa-cog"></i> Configurações</h3>
+            <div class="settings-content">
+                <button class="action-btn btn-secondary" (click)="openChangePasswordModal()"><i class="fas fa-key"></i> Alterar Senha</button>
+            </div>
+        </div>
+
+        <div class="dashboard-card invites-card">
+            <h3><i class="fas fa-envelope-open-text"></i> Convites Pendentes</h3>
+            <div class="card-body-content">
+                <div *ngIf="invites.length > 0; else noInvites">
+                    <ul class="invites-list">
+                        <li class="invite-item" *ngFor="let invite of invites">
+                            <div class="team-details">
+                                <span class="team-avatar">{{ invite.teamAvatar }}</span>
+                                <span class="team-name">{{ invite.teamName }}</span>
+                            </div>
+                            <div class="invite-actions">
+                                <button class="action-btn btn-success" (click)="openInviteConfirmation(invite, 'accept')"><i class="fas fa-check"></i> Aceitar</button>
+                                <button class="action-btn btn-danger" (click)="openInviteConfirmation(invite, 'decline')"><i class="fas fa-times"></i> Recusar</button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <ng-template #noInvites>
+                    <p style="text-align: center; color: #a5a5a5; margin-top: 20px;">Nenhum convite pendente.</p>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="modal-overlay active" *ngIf="isChangePasswordModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2><i class="fas fa-key"></i> Alterar Senha</h2>
+            <button type="button" class="close-btn" (click)="closeAllModals()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="passwordForm" class="modal-form" (ngSubmit)="saveNewPassword()">
+                <div *ngIf="passwordFormError" class="form-error-message">{{ passwordFormError }}</div>
+                <div class="input-group">
+                    <label>Nova Senha</label>
+                    <input type="password" name="newPassword" [(ngModel)]="passwordData.newPassword" maxlength="24">
+                </div>
+                <div class="input-group">
+                    <label>Confirmar Nova Senha</label>
+                    <input type="password" name="confirmPassword" [(ngModel)]="passwordData.confirmPassword" maxlength="24">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+            <button type="submit" form="passwordForm" class="action-btn">Salvar Nova Senha</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isInviteConfirmModalVisible" (click)="closeAllModals()">
+    <div class="modal active" (click)="$event.stopPropagation()" *ngIf="inviteToConfirm">
+        <div class="modal-header">
+            <h2><i class="fas fa-question-circle"></i> Confirmar Ação</h2>
+        </div>
+        <div class="modal-body">
+            <p>Você tem certeza que deseja 
+                <strong>{{ inviteToConfirm.action === 'accept' ? 'aceitar' : 'recusar' }}</strong> 
+                o convite da equipe <strong>"{{ inviteToConfirm.invite.teamName }}"</strong>?
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeAllModals()">Cancelar</button>
+            <button type="button" class="action-btn" 
+                    [ngClass]="{ 'btn-success': inviteToConfirm.action === 'accept', 'btn-danger': inviteToConfirm.action === 'decline' }" 
+                    (click)="handleInviteConfirmation()">
+                Confirmar
+            </button>
+        </div>
+    </div>
+</div>

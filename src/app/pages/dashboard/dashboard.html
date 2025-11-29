@@ -1,0 +1,297 @@
+<main class="dashboard-container">
+    <div class="dashboard-header">
+        <h2>Visão Geral da Equipe</h2>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="dashboard-card card-finance">
+            <h3><i class="fas fa-wallet"></i> Saldo Financeiro</h3>
+            <p class="metric-value">{{ saldoFinanceiro | currency:'BRL' }}</p> 
+            <span class="card-footer">Atualizado em tempo real</span>
+        </div>
+
+        <div class="dashboard-card card-quick-access">
+            <h3><i class="fas fa-bolt"></i> Acesso Rápido</h3>
+            <div class="quick-buttons">
+                 <button class="quick-btn" (click)="novaTarefa()"><i class="fas fa-plus"></i> Nova Tarefa</button> 
+                 <button class="quick-btn" (click)="solicitarReembolso()"><i class="fas fa-file-invoice-dollar"></i> Solicitar Reembolso</button> 
+                 <button *ngIf="permissionService.hasPermission(Permissions.MANAGE_INVENTORY)" class="quick-btn" (click)="registrarPeca()"><i class="fas fa-box"></i> Registrar Peça</button> 
+            </div>
+        </div>
+
+        <div class="dashboard-card card-competitions">
+            <div class="competition-header">
+                <h3><i class="fas fa-trophy"></i> Próximas Competições</h3>
+            </div>
+            <ul class="competition-list card-body-content">
+                <li class="competition-item" *ngFor="let competition of competitions">
+                    <div class="competition-details">
+                        <span class="competition-name">{{ competition.name }}</span>
+                        <span class="competition-date">
+                            <i class="fas fa-calendar-alt"></i> 
+                            {{ competition.date | date:'dd/MM/yyyy' }} - {{ competition.location }}
+                        </span>
+                    </div>
+                    <div *ngIf="permissionService.hasPermission(Permissions.MANAGE_COMPETITIONS)" class="competition-actions">
+                        <button class="btn-icon btn-edit" title="Editar Competição" (click)="openEditCompetitionModal(competition)">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                        <button class="btn-icon btn-delete" title="Excluir Competição" (click)="openConfirmDeleteModal(competition, 'competition')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+            <div class="card-footer">
+                <button *ngIf="permissionService.hasPermission(Permissions.MANAGE_COMPETITIONS)" class="quick-btn" (click)="openRegisterCompetitionModal()" style="width: 100%;">
+                    <i class="fas fa-plus"></i> Registrar Competição
+                </button>
+            </div>
+        </div>
+
+        <div class="dashboard-card card-projects">
+            <h3><i class="fas fa-tasks"></i> Status dos Projetos</h3>
+            <div class="project-status" *ngFor="let projeto of projetos">
+                <span>{{ projeto.nome }}</span>
+                <div class="progress-bar">
+                    <div class="progress" 
+                         [style.width.%]="calculateTaskProgress(projeto)" 
+                         [class.bg-completed]="calculateTaskProgress(projeto) === 100">
+                         {{ calculateTaskProgress(projeto) === 100 ? 'Concluído' : (calculateTaskProgress(projeto) | number:'1.0-0') + '%' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card card-chart">
+            <h3><i class="fas fa-chart-bar"></i> Resumo de Despesas</h3>
+            <div class="chart-container">
+                <div *ngFor="let despesa of despesas" class="chart-bar-group">
+                    <div class="chart-bar" [style.height.%]="despesa.altura">
+                        <span>{{ despesa.valor | currency:'BRL':'symbol':'1.0-0' }}</span>
+                    </div>
+                    <p class="chart-label">{{ despesa.mes }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card card-activity">
+            <h3><i class="fas fa-history"></i> Histórico de Atividades</h3>
+            <ul class="activity-list card-body-content">
+                 <li *ngFor="let atividade of atividadesRecentes">
+                    <span class="user">{{ atividade.usuario }}</span> {{ atividade.acao }}
+                </li>
+            </ul>
+        </div>
+
+        <div class="dashboard-card card-inventory-alerts">
+            <h3><i class="fas fa-exclamation-triangle"></i> Alertas de Inventário</h3>
+            
+            <div class="card-body-content">
+                <div *ngIf="inventoryAlerts.length > 0; else noAlerts">
+                    <ul class="alert-list">
+                        <li *ngFor="let item of inventoryAlerts">
+                            <span>{{ item.name }} ({{ item.quantity }} un.)</span>
+                            <span class="stock-status-tag" [ngClass]="getStockStatus(item).class">
+                                {{ getStockStatus(item).text }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <ng-template #noAlerts>
+                    <div class="no-alerts-message">
+                        <i class="fas fa-check-circle"></i>
+                        <p>Nenhum item com estoque baixo ou crítico.</p>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="modal-overlay active" *ngIf="isNovaTarefaModalOpen" (click)="closeModal()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2><i class="fas fa-plus"></i> Criar Nova Tarefa</h2>
+            <button type="button" class="close-btn" (click)="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="novaTarefaForm" class="modal-form">
+                <div *ngIf="taskFormError" class="form-error-message">
+                    {{ taskFormError }}
+                </div>
+                <div class="input-group">
+                    <label>Nome da Tarefa</label>
+                    <input type="text" name="taskName" [(ngModel)]="newTask.name"
+                           placeholder="Ex: Montar o chassi do robô" maxlength="26">
+                </div>
+                <div class="input-group">
+                    <label>Associar ao Projeto</label>
+                    <select name="taskProject" [(ngModel)]="newTask.projectId">
+                        <option [ngValue]="null" disabled>Selecione um projeto...</option>
+                        <option *ngFor="let projeto of editableProjects" [value]="projeto.id">{{ projeto.nome }}</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Atribuir ao membro</label>
+                    <select name="taskAssignee" [(ngModel)]="newTask.assigneeId">
+                        <option [ngValue]="null" disabled>Selecione um membro...</option>
+                        <option *ngFor="let membro of membrosDaEquipe" [value]="membro.id">{{ membro.nome }}</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeModal()">Cancelar</button>
+            <button type="button" class="action-btn" (click)="submitNewTask()">Criar Tarefa</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isSolicitarReembolsoModalOpen" (click)="closeModal()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2><i class="fas fa-file-invoice-dollar"></i> Solicitar Reembolso</h2>
+            <button type="button" class="close-btn" (click)="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="reembolsoForm" class="modal-form">
+                <div *ngIf="reimbursementFormError" class="form-error-message">
+                    {{ reimbursementFormError }}
+                </div>
+                <div class="input-group">
+                    <label>Valor (R$)</label>
+                    <input type="number" name="reimbursementValue" [(ngModel)]="newReimbursement.value"
+                           placeholder="Ex: 55,90" min="0" max="9999">
+                </div>
+                <div class="input-group">
+                    <label>Descrição da Compra</label>
+                    <input type="text" name="reimbursementDesc" [(ngModel)]="newReimbursement.description"
+                           placeholder="Ex: Compra de parafusos e conectores" maxlength="26">
+                </div>
+                <div class="input-group">
+                    <label>Anexar Nota Fiscal (PDF)</label>
+                    <input type="file" name="reimbursementFile" accept=".pdf" 
+                           (change)="onFileSelected($event)">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeModal()">Cancelar</button>
+            <button type="button" class="action-btn" (click)="submitReimbursement()">Enviar Solicitação</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isRegistrarPecaModalOpen" (click)="closeModal()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2><i class="fas fa-box"></i> Registrar Nova Peça</h2>
+            <button type="button" class="close-btn" (click)="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="pecaForm" class="modal-form">
+                <div *ngIf="pieceFormError" class="form-error-message">
+                    {{ pieceFormError }}
+                </div>
+                <div class="input-group">
+                    <label>Nome da Peça / Componente</label>
+                    <input type="text" name="pieceName" [(ngModel)]="newPiece.name"
+                           placeholder="Ex: Placa Arduino Uno" maxlength="32">
+                </div>
+                 <div class="input-group">
+                    <label>Quantidade em Estoque</label>
+                    <input type="number" name="pieceQuantity" [(ngModel)]="newPiece.quantity"
+                           placeholder="Ex: 5" min="0" max="999">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeModal()">Cancelar</button>
+            <button type="button" class="action-btn" (click)="submitNewPiece()">Registrar no Inventário</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isRegisterCompetitionModalVisible" (click)="closeModal()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2><i class="fas fa-plus"></i> Registrar Competição</h2>
+            <button type="button" class="close-btn" (click)="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="registerCompForm" class="modal-form" (ngSubmit)="saveNewCompetition()">
+                <div class="input-group">
+                    <label>Nome da Competição</label>
+                    <input type="text" name="newCompName" [(ngModel)]="newCompetition.name" required maxlength="18">
+                </div>
+                <div class="input-group">
+                    <label>Data</label>
+                    <input type="date" name="newCompDate" [(ngModel)]="newCompetition.date" required>
+                </div>
+                <div class="input-group">
+                    <label>Local</label>
+                    <input type="text" name="newCompLocation" [(ngModel)]="newCompetition.location" required maxlength="24">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeModal()">Cancelar</button>
+            <button type="submit" form="registerCompForm" class="action-btn">Salvar Competição</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isEditCompetitionModalVisible" (click)="closeModal()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2><i class="fas fa-pencil-alt"></i> Editar Competição</h2>
+            <button type="button" class="close-btn" (click)="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="editCompForm" class="modal-form" (ngSubmit)="saveEditedCompetition()" *ngIf="editingCompetition">
+                <div class="input-group">
+                    <label>Nome da Competição</label>
+                    <input type="text" name="editCompName" [(ngModel)]="editingCompetition.name" required maxlength="18">
+                </div>
+                <div class="input-group">
+                    <label>Data</label>
+                    <input type="date" name="editCompDate" [(ngModel)]="editingCompetition.date" required>
+                </div>
+                <div class="input-group">
+                    <label>Local</label>
+                    <input type="text" name="editCompLocation" [(ngModel)]="editingCompetition.location" required maxlength="24">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeModal()">Cancelar</button>
+            <button type="submit" form="editCompForm" class="action-btn">Salvar Alterações</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay active" *ngIf="isConfirmDeleteModalVisible" (click)="closeModal()">
+    <div class="modal active" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2><i class="fas fa-exclamation-triangle"></i> Confirmar Exclusão</h2>
+        </div>
+        <div class="modal-body">
+            <p>Você tem certeza de que deseja excluir este item? Esta ação não pode ser desfeita.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="action-btn btn-secondary" (click)="closeModal()">Cancelar</button>
+            <button type="button" class="action-btn btn-danger" (click)="handleDeleteConfirmation()">Excluir</button>
+        </div>
+    </div>
+</div>

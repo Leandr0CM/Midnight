@@ -1,0 +1,48 @@
+/* Garante que o layout ocupe toda a altura da tela */
+:host {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Faz a área de conteúdo principal crescer e empurrar o rodapé para baixo */
+main {
+    flex-grow: 1;
+}
+
+/* --- Estilos do Rodapé --- */
+.main-footer {
+    background: linear-gradient(to right, #1a1a1a, #0d0d0d); /* Gradiente sutil */
+    color: #a5a5a5;
+    padding: 30px 30px; /* Aumenta o padding para mais espaço */
+    border-top: 2px solid #333; /* Linha mais definida no topo */
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3); /* Sombra para dar profundidade */
+    text-align: center; /* Centraliza tudo no rodapé */
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column; /* Coloca o texto e logo em coluna */
+    justify-content: center;
+    align-items: center;
+    font-size: 16px; /* Aumenta o tamanho da fonte */
+    font-weight: 500; /* Deixa o texto um pouco mais encorpado */
+}
+
+.footer-content span {
+    color: #e0e0e0; 
+    text-transform: uppercase;
+    letter-spacing: 1.5px; /* Espaçamento entre as letras */
+    padding-bottom: 15px;
+}
+
+.footer-content img {
+    height: 70px; /* Sua altura desejada */
+    width: auto; /* Mantém a proporção */
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.1)); /* Brilho sutil no logo */
+    transition: transform 0.3s ease-in-out; /* Adiciona transição para hover */
+}
+
+.footer-content img:hover {
+    transform: scale(1.03); /* Pequeno zoom no hover */
+}

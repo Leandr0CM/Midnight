@@ -1,0 +1,618 @@
+/* ==========================================================================
+   PROJETOS.CSS - ESTILOS ESPECÍFICOS DA PÁGINA DE PROJETOS
+   ========================================================================== */
+
+/* --- Layout da Página e da Grade de Projetos --- */
+.project-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-top: 25px;
+}
+
+@media (min-width: 768px) {
+    .projects-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    .projects-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* --- Estilos Específicos do Card de Projeto --- */
+.project-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    padding-bottom: 0;
+    border-bottom: none;
+    margin-bottom: 15px;
+}
+
+.project-card-header h3 {
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.project-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+}
+
+.header-title-status {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.project-category {
+    background-color: #444;
+    color: #e0e0e0;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 13px;
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+.project-category i {
+    margin-right: 8px;
+}
+
+.project-description {
+    font-size: 15px;
+    color: #a5a5a5;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+/* Tag de Status (Concluído, Pendente, etc.) */
+.status {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    white-space: nowrap;
+}
+.status.in-progress { background-color: #337ab7; }
+.status.pending { background-color: #f0ad4e; }
+.status.done { background-color: #2a8a4d; }
+
+/* Barra de Progresso */
+.project-progress {
+    margin-top: 20px;
+}
+.project-progress span {
+    font-size: 14px;
+    color: #a5a5a5;
+    display: block;
+    margin-bottom: 8px;
+}
+.progress-bar {
+    background-color: #444;
+    border-radius: 20px;
+    overflow: hidden;
+    height: 20px;
+}
+.progress {
+    background-color: #a52a2a;
+    color: white;
+    text-align: center;
+    line-height: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    height: 100%;
+    transition: width 0.4s ease-in-out;
+}
+.progress.bg-completed {
+    background-color: #2a8a4d;
+}
+
+/* Seção de Peças Alocadas */
+.parts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 8px;
+}
+.parts-header h4 {
+    margin: 0;
+    font-size: 16px;
+    color: #a5a5a5;
+}
+.parts-header h4 i {
+    margin-right: 8px;
+}
+.btn-icon.btn-add {
+    font-size: 22px;
+    color: #2a8a4d;
+}
+.btn-icon.btn-add:hover {
+    color: #45a049;
+}
+.parts-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+    max-height: 100px;
+    overflow-y: auto;
+}
+.part-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 5px;
+    font-size: 14px;
+    color: #e0e0e0;
+}
+.part-details {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.part-owner {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+}
+.part-owner.team { background-color: #337ab7; }
+.part-owner.personal { background-color: #f0ad4e; }
+
+/* Seção de Membros */
+.project-members {
+    display: flex;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 15px;
+}
+.project-members > span {
+    margin-right: 10px;
+    font-size: 14px;
+    color: #a5a5a5;
+}
+.member-avatars {
+    display: flex;
+}
+.avatar {
+    height: 35px;
+    width: 35px;
+    background-color: #555;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+    margin-left: -10px;
+    border: 2px solid #1a1a1a;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.avatar:first-child {
+    margin-left: 0;
+}
+.avatar:hover {
+    transform: translateY(-3px);
+}
+
+/* Rodapé do Card */
+.project-card-footer {
+    border-top: 1px solid #444;
+    padding-top: 20px;
+    margin-top: 25px;
+}
+
+/* Modificações de Botões Específicas da Página */
+.project-card.completed {
+    border-top-color: #2a8a4d;
+}
+.project-card-footer .action-btn.btn-secondary {
+    background-color: #333;
+}
+.project-card-footer .action-btn.btn-secondary:hover {
+    background-color: #555;
+}
+
+/* --- Estilos para Elementos Dentro dos Modais da Página de Projetos --- */
+
+.modal .task-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 0 0;
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #444;
+}
+.task-item:last-child {
+    border-bottom: none;
+}
+.task-info {
+    display: flex;
+    flex-direction: column;
+}
+.task-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #e0e0e0;
+}
+.task-assignee {
+    font-size: 13px;
+    color: #a5a5a5;
+    margin-top: 5px;
+}
+.task-assignee i {
+    margin-right: 5px;
+}
+.task-status-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.task-actions {
+    display: flex;
+    gap: 15px;
+}
+.task-status {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+}
+.task-status.status-done { background-color: #2a8a4d; }
+.task-status.status-in-progress { background-color: #337ab7; }
+.task-status.status-pending { background-color: #f0ad4e; }
+
+/* --- ESTILOS PARA GERENCIAMENTO DE EQUIPE NO MODAL 'EDITAR PROJETO' --- */
+
+/* Contêiner para as tags dos membros já adicionados */
+.assigned-members-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+    background-color: #2a2a2a;
+    border-radius: 5px;
+    min-height: 40px;
+    margin-bottom: 15px;
+}
+
+/* Estilo da tag de cada membro */
+.member-tag {
+    display: inline-flex;
+    align-items: center;
+    background-color: #337ab7;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 14px;
+}
+
+/* Botão 'x' para remover o membro */
+.remove-member-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    margin-left: 8px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+.remove-member-btn:hover {
+    opacity: 1;
+}
+
+/* Contêiner para o <select> e o botão 'Adicionar' */
+.add-member-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.add-member-container .member-select {
+    flex-grow: 1;
+}
+
+/* --- ESTILOS PARA O RADIO GROUP NO MODAL 'ALOCAR PEÇAS' --- */
+
+.radio-group {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+/* Esconde o botão de rádio padrão */
+.radio-group input[type="radio"] {
+    display: none;
+}
+
+/* Estiliza o label para parecer um botão clicável */
+.radio-group label {
+    background-color: #333;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+    border: 1px solid #555;
+    color: #e0e0e0;
+    font-size: 14px;
+}
+
+/* Estilo do label quando o rádio correspondente está selecionado */
+.radio-group input[type="radio"]:checked + label {
+    background-color: #a52a2a;
+    border-color: #a52a2a;
+    box-shadow: 0 0 5px rgba(165, 42, 42, 0.5);
+}
+
+.radio-group label:hover {
+    background-color: #444;
+}
+
+/* --- ESTILOS PARA O CONTADOR DE CARACTERES --- */
+
+.textarea-container {
+    position: relative; /* Define o contexto para o posicionamento do contador */
+}
+
+/* Ajusta o padding do textarea para não ser coberto pelo contador */
+.textarea-container textarea {
+    padding-bottom: 25px; 
+}
+
+.char-counter {
+    position: absolute; /* Posiciona o contador sobre o textarea */
+    bottom: 8px;
+    right: 12px;
+    font-size: 12px;
+    color: #777;
+    background-color: #2a2a2a; /* Cor de fundo igual ao do input */
+    padding: 0 4px; /* Pequeno espaçamento para o texto não colar nas bordas */
+}
+
+/* --- ESTILOS PARA O DROPDOWN DE BUSCA DE PEÇAS --- */
+
+.search-dropdown-container {
+    position: relative;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    z-index: 10;
+    list-style: none;
+    padding: 0;
+    margin: -5px 0 0 0;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.search-results li {
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.search-results li:hover {
+    background-color: #a52a2a;
+}
+
+.search-results .inventory-count {
+    font-size: 12px;
+    color: #a5a5a5;
+    font-style: italic;
+}
+
+/* --- ESTILOS PARA O CARTÃO DE INFORMAÇÃO DA PEÇA SELECIONADA --- */
+
+.selected-part-info {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-left: 4px solid #a52a2a;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin-bottom: 20px; /* Espaçamento antes do próximo input */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.selected-part-info .part-name {
+    font-weight: bold;
+    color: #e0e0e0;
+}
+
+.selected-part-info .part-quantity {
+    font-size: 13px;
+    color: #a5a5a5;
+}
+
+.selected-part-info .part-quantity strong {
+    color: #fff;
+    font-size: 14px;
+}
+
+/* --- ESTILOS PARA O CONTADOR DE CARACTERES --- */
+
+.textarea-container {
+    position: relative;
+}
+.textarea-container textarea {
+    padding-bottom: 25px; 
+}
+.char-counter {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 12px;
+    color: #777;
+    background-color: #2a2a2a;
+    padding: 0 4px;
+}
+
+/* --- ESTILOS PARA O DROPDOWN DE BUSCA DE PEÇAS --- */
+
+.search-dropdown-container {
+    position: relative;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input-wrapper input {
+    padding-right: 40px; /* Espaço para a seta */
+}
+
+.dropdown-arrow {
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    bottom: 1px;
+    width: 40px;
+    background-color: #3c3c3c;
+    border: none;
+    color: #a5a5a5;
+    cursor: pointer;
+    border-radius: 0 4px 4px 0;
+    transition: background-color 0.2s;
+}
+
+.dropdown-arrow:hover {
+    background-color: #4d4d4d;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    z-index: 10;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.search-results li {
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.search-results li:hover {
+    background-color: #a52a2a;
+}
+
+.search-results .inventory-count {
+    font-size: 14px;
+    font-weight: bold;
+    color: #e0e0e0;
+}
+
+/* --- ESTILOS PARA O CARTÃO DE INFORMAÇÃO DA PEÇA SELECIONADA --- */
+
+.selected-part-info {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-left: 4px solid #a52a2a;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin-top: -10px; /* Puxa para cima para se conectar visualmente */
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.selected-part-info .part-name {
+    font-weight: bold;
+    color: #e0e0e0;
+}
+
+.selected-part-info .part-quantity {
+    font-size: 13px;
+    color: #a5a5a5;
+}
+
+.selected-part-info .part-quantity strong {
+    color: #fff;
+    font-size: 14px;
+}
+
+/* --- [NOVO] ESTILOS PARA AS TAGS DE STATUS DO ESTOQUE --- */
+
+.stock-status-tag {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.stock-status-tag.status-empty {
+    background-color: #333;
+    color: #999;
+}
+
+.stock-status-tag.status-low {
+    background-color: #c9302c;
+}
+
+.stock-status-tag.status-ok {
+    background-color: #2a8a4d;
+}
+
+.stock-status-tag.status-plenty {
+    background-color: #337ab7; /* Azul */
+}

@@ -1,0 +1,265 @@
+/* ==========================================================================
+   MEMBROS.CSS - ESTILOS ESPECÍFICOS DA PÁGINA DE MEMBROS
+   ========================================================================== */
+
+/* --- Cabeçalho e Layout da Grid --- */
+.members-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.members-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+    margin-top: 25px;
+}
+
+/* --- Tabela de Membros (ESTRUTURA CORRIGIDA) --- */
+
+.table-container {
+    max-height: 640px;
+    overflow-y: auto;
+    position: relative;
+}
+
+.members-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.members-table thead {
+    background-color: #2a2a2a;
+}
+
+.members-table th {
+    padding: 15px;
+    text-align: left;
+    font-size: 14px;
+    color: #a5a5a5;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #2a2a2a;
+}
+
+/* Larguras ajustadas para dar mais espaço ao e-mail */
+.members-table th:nth-child(1) { width: 25%; } /* Nome */
+.members-table th:nth-child(2) { width: 10%; } /* Cargo */
+.members-table th:nth-child(3) { width: 20%; } /* Função */
+.members-table th:nth-child(4) { width: 30%; } /* Contato */
+.members-table th:nth-child(5) { 
+    width: 15%; /* Ações */
+    text-align: center;
+}
+
+.members-table td {
+    padding: 15px;
+    border-bottom: 1px solid #444;
+    vertical-align: middle;
+}
+
+.members-table tbody tr:hover {
+    background-color: #252525;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-info .avatar {
+    height: 40px;
+    width: 40px;
+    background-color: #555;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+    border: 2px solid #333;
+    flex-shrink: 0;
+}
+
+/* Tags de Cargo e Função */
+.tag {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+}
+.tag.tag-member { background-color: #337ab7; }
+.tag.tag-intern { background-color: #5bc0de; }
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.contact-cell {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- Lista de Funções e Permissões --- */
+.roles-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+    max-height: 530px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.unique-role-section {
+    margin-top: 20px;
+}
+
+.role-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #444;
+}
+.role-item:last-child {
+    border-bottom: none;
+}
+
+.role-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: bold;
+}
+.role-name i {
+    font-size: 14px;
+}
+
+.role-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.role-actions .action-btn.btn-secondary {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+/* --- Estilos para Elementos Específicos dos Modais desta Página --- */
+.color-picker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 5px;
+    padding: 8px;
+}
+.modal-form input[type="color"] {
+    -webkit-appearance: none; -moz-appearance: none; appearance: none;
+    width: 40px; height: 40px;
+    background-color: transparent; border: none; cursor: pointer; padding: 0;
+}
+.modal-form input[type="color"]::-webkit-color-swatch {
+    border-radius: 5px; border: 1px solid #555;
+}
+.modal-form input[type="color"]::-moz-color-swatch {
+    border-radius: 5px; border: 1px solid #555;
+}
+.color-hex {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+    color: #a5a5a5;
+    background-color: #1e1e1e;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+.permissions-section {
+    margin-top: 25px;
+    border-top: 1px solid #444;
+    padding-top: 20px;
+}
+.permission-category {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    margin: 15px 0 10px 0;
+    font-weight: bold;
+}
+.permission-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #333;
+}
+.permission-item:last-child {
+    border-bottom: none;
+}
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #333; transition: .4s;
+}
+.slider:before {
+    position: absolute; content: "";
+    height: 18px; width: 18px;
+    left: 4px; bottom: 4px;
+    background-color: white; transition: .4s;
+}
+input:checked + .slider { background-color: #2a8a4d; }
+input:checked + .slider:before { transform: translateX(22px); }
+.slider.round { border-radius: 26px; }
+.slider.round:before { border-radius: 50%; }
+.radio-group {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+}
+.radio-group input[type="radio"] { display: none; }
+.radio-group label {
+    background-color: #333;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+    border: 1px solid #555;
+    font-size: 14px;
+}
+.radio-group input[type="radio"]:checked + label {
+    background-color: #a52a2a;
+    border-color: #a52a2a;
+    box-shadow: 0 0 5px rgba(165, 42, 42, 0.5);
+}
+.modal-body .warning-text {
+    font-size: 14px;
+    color: #f0ad4e;
+    margin-top: 15px;
+}
+.modal-body strong {
+    font-weight: bold;
+}
+
+/* --- Responsividade --- */
+@media (max-width: 992px) {
+    .members-grid {
+        grid-template-columns: 1fr;
+    }
+}

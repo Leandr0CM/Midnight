@@ -1,0 +1,18 @@
+<div class="team-selector-container" *ngIf="activeTeam">
+  <button class="active-team-btn" (click)="toggleDropdown()">
+    <img [src]="activeTeam.logoUrl" alt="Logo da Equipe" class="team-logo">
+    <span class="team-name">{{ activeTeam.name }}</span>
+    <i class="fas fa-chevron-down dropdown-icon" [class.rotated]="isDropdownOpen"></i>
+  </button>
+
+  <div class="team-dropdown" *ngIf="isDropdownOpen">
+    <div class="dropdown-header">TROCAR DE EQUIPE</div>
+    <ul>
+      <li *ngFor="let team of userTeams" (click)="selectTeam(team)">
+        <img [src]="team.logoUrl" alt="Logo da Equipe" class="team-logo">
+        <span>{{ team.name }}</span>
+        <i *ngIf="team.id === activeTeam.id" class="fas fa-check-circle active-check"></i>
+      </li>
+    </ul>
+  </div>
+</div>

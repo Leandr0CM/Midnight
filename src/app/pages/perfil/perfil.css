@@ -1,0 +1,154 @@
+.profile-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Duas colunas com a primeira sendo maior */
+    grid-template-rows: auto auto; /* Define que as linhas se ajustam ao conteúdo */
+    gap: 25px;
+}
+
+.profile-card {
+    grid-column: 1 / 2;
+    grid-row: 1 / 3; /* Ocupa as duas linhas da primeira coluna */
+}
+
+.settings-card {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2; /* Ocupa a primeira linha da segunda coluna */
+}
+
+.invites-card {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3; /* Ocupa a segunda linha da segunda coluna */
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 25px;
+    margin-bottom: 25px;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #a52a2a;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid #333;
+}
+
+.profile-info .profile-name {
+    margin: 0 0 10px 0;
+    font-size: 32px;
+}
+
+.profile-info .profile-role {
+    padding: 5px 15px;
+    border-radius: 15px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 16px;
+    color: #a5a5a5;
+}
+
+.detail-item i {
+    color: #a52a2a;
+    width: 20px;
+    text-align: center;
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* --- Estilos para o card de convites --- */
+
+.invites-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.invite-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5px;
+    border-bottom: 1px solid #333;
+}
+
+.invite-item:last-child {
+    border-bottom: none;
+}
+
+.team-details {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.team-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: #555;
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.team-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #e0e0e0;
+}
+
+.invite-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.invite-actions .action-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.invite-actions .action-btn i {
+    margin-right: 6px;
+}
+
+/* Media query para telas menores, onde tudo vira uma coluna só */
+@media (max-width: 992px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+    .profile-card, .settings-card, .invites-card {
+        grid-column: 1 / -1;
+        grid-row: auto;
+    }
+}

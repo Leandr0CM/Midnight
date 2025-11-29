@@ -1,0 +1,92 @@
+<div class="login-page-container">
+
+    <app-embers></app-embers>
+
+    <div class="login-split-container">
+        
+        <div class="split-left">
+            <div class="logo-content">
+                <img src="assets/images/Logomidnight.png" alt="Logo Midnight Robot Team">
+                <h1>Midnight Robot Team</h1>
+                <p>Plataforma de Gestão para Equipe de Robótica</p>
+            </div>
+        </div>
+
+        <div class="split-right">
+            <div *ngIf="formState === 'login'" class="login-form-container">
+                <h2>Acesse sua conta</h2>
+
+                <div *ngIf="loginError" class="error-message">
+                    Usuário ou senha inválidos.
+                </div>
+
+                <form class="login-form" (ngSubmit)="onLogin()">
+                    <div class="input-group">
+                        <i class="fas fa-user icon-prefix"></i>
+                        <input type="text" placeholder="Nome de usuário" required [(ngModel)]="username" name="username">
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock icon-prefix"></i>
+                        <input [type]="showPassword ? 'text' : 'password'" placeholder="Senha" required [(ngModel)]="password" name="password">
+                        <i class="password-toggle-icon" [ngClass]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" (click)="toggleShowPassword()"></i>
+                    </div>
+                    <button type="submit">Entrar</button>
+                    <p class="forgot-password" (click)="setFormState('forgotPassword')">Esqueceu a senha?</p>
+                </form>
+                <p class="switch-form-text">
+                    Não tem uma conta? <a (click)="setFormState('register')">Cadastre-se</a>
+                </p>
+            </div>
+
+            <div *ngIf="formState === 'register'" class="login-form-container">
+                <h2>Crie sua conta</h2>
+                <form class="login-form" (ngSubmit)="onRegister()">
+                    <div class="input-group">
+                        <i class="fas fa-user icon-prefix"></i>
+                        <input type="text" placeholder="Nome de usuário" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-envelope icon-prefix"></i>
+                        <input type="email" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock icon-prefix"></i>
+                        <input [type]="showPassword ? 'text' : 'password'" placeholder="Senha" required>
+                        <i class="password-toggle-icon" [ngClass]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" (click)="toggleShowPassword()"></i>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock icon-prefix"></i>
+                        <input [type]="showConfirmPassword ? 'text' : 'password'" placeholder="Confirmar Senha" required>
+                        <i class="password-toggle-icon" [ngClass]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" (click)="toggleShowConfirmPassword()"></i>
+                    </div>
+                    <button type="submit">Cadastrar</button>
+                </form>
+                <p class="switch-form-text">
+                    Já tem uma conta? <a (click)="setFormState('login')">Faça o login</a>
+                </p>
+            </div>
+
+            <div *ngIf="formState === 'forgotPassword'" class="login-form-container">
+                <div *ngIf="!emailSent">
+                    <h2>Recuperar Senha</h2>
+                    <p class="form-description">Digite seu e-mail e enviaremos as instruções para você.</p>
+                    <form class="login-form" (ngSubmit)="onForgotPassword()">
+                        <div class="input-group">
+                            <i class="fas fa-envelope icon-prefix"></i>
+                            <input type="email" placeholder="Seu e-mail" required>
+                        </div>
+                        <button type="submit">Enviar</button>
+                    </form>
+                </div>
+                <div *ngIf="emailSent">
+                    <h2>Verifique seu E-mail</h2>
+                    <p class="form-description">Enviamos um link de recuperação de senha para o seu e-mail. Por favor, verifique sua caixa de entrada e spam.</p>
+                </div>
+                <p class="switch-form-text">
+                    Lembrou a senha? <a (click)="setFormState('login')">Voltar para o Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
